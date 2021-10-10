@@ -10,9 +10,16 @@ class Picture(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
     picture = models.TextField()
 
+    class Meta:
+        db_table = "pictures"
+
 
 class MapLocation(models.Model):
     # 구글 api에서 가져온 위치 정보 따로 저장. 맵 api 정보 보고 추가 or 삭제
     x_location = models.FloatField()
     y_location = models.FloatField()
     location_name = models.TextField()
+
+    class Meta:
+        db_table = "mapLocations"
+
