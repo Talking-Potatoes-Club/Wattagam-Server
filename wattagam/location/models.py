@@ -16,3 +16,4 @@ class MapLocation(models.Model):
     x_location = models.FloatField()
     y_location = models.FloatField()
     location_name = models.TextField()
+
