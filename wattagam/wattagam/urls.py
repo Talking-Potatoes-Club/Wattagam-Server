@@ -18,9 +18,11 @@ from django.urls import path
 
 from account.views import SignUpView
 from account.views import LogInView
+from account.views import TempPasswordView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('signUp', SignUpView.as_view()),
     path('logIn', LogInView.as_view()),
+    path('tempPassword', TempPasswordView.as_view()),
 ]

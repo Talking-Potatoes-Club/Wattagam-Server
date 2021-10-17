@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.views import View
 
 from account.models import Account
+from rest_framework.authtoken.admin import User
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
@@ -15,11 +16,7 @@ from rest_framework.permissions import AllowAny
 class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
-        """Account(
-            email=data['email'],
-            password=data['password'],
-            user_name=data['user_name']
-        ).save()"""
+
         user = Account.objects.create_user(
             email=data['email'],
             password=data['password'],
@@ -49,11 +46,21 @@ class LogInView(View):
 
         return JsonResponse({'message': f'{account.user_name}님 로그인 성공!', 'token': token.key}, status=200)
 
-        """if Account.objects.filter(login_id=data['login_id']).exists():
-            user = Account.objects.get(login_id=data['login_id'])
-            if user.password == data['password']:
-                return JsonResponse({'message': f'{user.login_id}님 로그인 성공!'}, status=200)
-            else:
-                return JsonResponse({'message': '비밀번호가 틀렸어요'}, status=401)
 
-        return JsonResponse({'message': '등록되지 않은 아이디 입니다.'}, status=401)"""
+@permission_classes((AllowAny,))
+class TempPasswordView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        if data['email'] is None:
+            return JsonResponse({'message': '임시 비밀번호를 발급할 이메일을 입력해 주십시오'}, status=400)
+
+        password = User.objects.make_random_password()
+        user = Account.objects.filter(email=data['email'])[0]
+
+        user.set_password(password)
+        user.save()
+
+        return JsonResponse({'message': '임시 비밀번호가 발급되었습니다.', 'temp_password': password}, status=200)
+
+
