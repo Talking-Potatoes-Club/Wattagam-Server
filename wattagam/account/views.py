@@ -66,22 +66,22 @@ class TempPasswordView(View):
         return JsonResponse({'message': '임시 비밀번호가 발급되었습니다.', 'temp_password': password}, status=200)
 
 
-@api_view(['POST']) # 하 ㅋㅋ 클래스로 만들면 auth 안타고 그냥 def로 해야 타네, 이유를 모르겠다
+@api_view(['POST'])  # 하 ㅋㅋ 클래스로 만들면 auth 안타고 그냥 def로 해야 타네, 이유를 모르겠다
 def changePasswordView(request):
-        data = json.loads(request.body)
-        user = request.user
+    data = json.loads(request.body)
+    user = request.user
 
-        if request.user.is_anonymous:
-            raise AuthenticationFailed()
+    if request.user.is_anonymous:
+        raise AuthenticationFailed()
 
-        if check_password(data['origin_password'], user.password):
-            user.set_password(data['new_password'])
-            user.save()
+    if check_password(data['origin_password'], user.password):
+        user.set_password(data['new_password'])
+        user.save()
 
-            return JsonResponse({'message': '비밀번호 변경이 완료되었습니다.'}, status=200)
+        return JsonResponse({'message': '비밀번호 변경이 완료되었습니다.'}, status=200)
 
-        else:
-            return JsonResponse({'message': '기존 비밀번호가 틀렸습니다.'}, status=400)
+    else:
+        return JsonResponse({'message': '기존 비밀번호가 틀렸습니다.'}, status=400)
 
 
 @api_view(['POST'])
