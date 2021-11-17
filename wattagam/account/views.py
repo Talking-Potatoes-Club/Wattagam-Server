@@ -13,6 +13,8 @@ from rest_framework.decorators import permission_classes, api_view
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from account.serializers import AccountSerializer
+
 
 @permission_classes((AllowAny,))
 class SignUpView(View):
@@ -22,7 +24,8 @@ class SignUpView(View):
         user = Account.objects.create_user(
             email=data['email'],
             password=data['password'],
-            user_name=data['user_name']
+            user_name=data['user_name'],
+            bio=data['bio']
         )
 
         if user:
@@ -46,7 +49,8 @@ class LogInView(View):
 
         token, _ = Token.objects.get_or_create(user=account)
 
-        return JsonResponse({'message': f'{account.user_name}님 로그인 성공!', 'token': token.key}, status=200)
+        return JsonResponse({'message': f'{account.user_name}님 로그인 성공!', 'token': token.key,
+                             'userInfo': AccountSerializer(account).data}, status=200)
 
 
 @permission_classes((AllowAny,))
@@ -100,3 +104,33 @@ def changeNicknameView(request):
         user.save()
 
         return JsonResponse({'message': '닉네임 변경이 완료되었습니다.'}, status=200)
+
+
+@api_view(['POST'])
+def changeUserInfo(request):
+    data = json.loads(request.body)
+    user = request.user
+
+    if request.user.is_anonymous:
+        raise AuthenticationFailed()
+
+    user.bio = data['bio']
+
+    if data['is_open'] == "true":
+        user.is_open = True
+    else:
+        user.is_open = False
+
+    user.save()
+    return JsonResponse({'message': '유저 정보 변경 완료되었습니다.', 'userInfo': AccountSerializer(user).data}, status=200)
+
+
+@api_view(['GET'])
+def getUserInfo(request, user_id):
+    user = Account.objects.filter(id=user_id)
+
+    if user.exists():
+        return JsonResponse({'message': '유저 정보 열람 완료.', 'userInfo': AccountSerializer(user[0]).data}, status=200)
+
+    else:
+        return JsonResponse({'message': '해당 유저가 없습니다.'}, status=400)

@@ -8,4 +8,6 @@ urlpatterns = [
     path('tempPassword', TempPasswordView.as_view()),
     path('changePassword', account.views.changePasswordView, name='changePasswordView'),
     path('changeNickname', account.views.changeNicknameView, name='changeNicknameView'),
+    path('changeUserInfo', account.views.changeUserInfo, name='changeUserInfo'),
+    path('getUserInfo/<int:user_id>', account.views.getUserInfo, name='getUserInfo'),
 ]
