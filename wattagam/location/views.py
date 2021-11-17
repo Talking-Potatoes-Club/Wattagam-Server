@@ -1,5 +1,8 @@
+import base64
 import json
+import uuid
 
+from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -10,6 +13,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from location.models import Picture
 from location.models import MapLocation
 
+from location.serializers import PictureSerializer
+
 
 @api_view(['POST'])
 def newPictureView(request):
@@ -19,9 +24,13 @@ def newPictureView(request):
     if request.user.is_anonymous:
         raise AuthenticationFailed()
 
-    picture = Picture.objects.create(author=user, picture=data['img_base64'])
-    new_location = MapLocation.objects.filter(x_location=data['x_location'], y_location=data['y_location'])
+    image_name = str(uuid.uuid4())
+    image_b64 = data['picture']  # This is your base64 string image
+    image = ContentFile(base64.b64decode(image_b64), name=image_name+".png")
 
+    picture = Picture.objects.create(author=user, picture=image)
+
+    new_location = MapLocation.objects.filter(x_location=data['x_location'], y_location=data['y_location'])
     if new_location.exists():
         picture.location = new_location[0]
     else:
@@ -32,4 +41,4 @@ def newPictureView(request):
 
     picture.save()
 
-    return JsonResponse({'message': "게시글 업로드 완료", 'picture': picture.picture}, status=200)
+    return JsonResponse({'message': "게시글 업로드 완료", 'post': PictureSerializer(picture).data}, status=200)

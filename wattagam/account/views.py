@@ -129,7 +129,7 @@ def changeUserInfo(request):
 def getUserInfo(request, user_id):
     user = Account.objects.filter(id=user_id)
 
-    if user.exists():
+    if user.exists():  # todo: is_open인 상태면 해당 유저 사진까지 보내도록 수정 필요
         return JsonResponse({'message': '유저 정보 열람 완료.', 'userInfo': AccountSerializer(user[0]).data}, status=200)
 
     else:

@@ -14,4 +14,4 @@ class Picture(models.Model):
     location = models.ForeignKey(MapLocation, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
-    picture = models.TextField()
+    picture = models.ImageField(blank=True, upload_to="images")
