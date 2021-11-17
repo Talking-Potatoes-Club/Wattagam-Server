@@ -9,7 +9,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
     # 유저 정보 저장
     user_name = models.CharField(max_length=255, null=False)
-    email = models.EmailField(unique=True, max_length=255, null=False)  # todo: email? or custom id?
+    email = models.EmailField(unique=True, max_length=255, null=False)
+    bio = models.CharField(max_length=255, null=True)  # 자기 소개
+    is_open = models.BooleanField(default=True)  # 계정 공개 여부 기본 공개
     #password = models.TextField(max_length=20, null=False)
 
     is_active = models.BooleanField(default=True)
