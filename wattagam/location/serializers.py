@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from drf_extra_fields.fields import Base64ImageField
 
 from location.models import MapLocation
 from location.models import Picture
@@ -14,7 +13,6 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class PictureSerializer(serializers.ModelSerializer):
-    # picture = Base64ImageField()  # From DRF Extra Fields
     location = LocationSerializer(read_only=True)
     author = AccountSerializer()
 
