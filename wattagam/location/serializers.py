@@ -9,7 +9,7 @@ from account.serializers import AccountSerializer
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = MapLocation
-        fields = ('x_location', 'y_location', 'location_name')
+        fields = ('id', 'x_location', 'y_location', 'location_name')
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -18,5 +18,5 @@ class PictureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Picture
-        fields = ('location', 'created_at', 'author', 'picture')
+        fields = ('id', 'location', 'created_at', 'author', 'picture')
 
