@@ -1,6 +1,6 @@
 import json
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout
 from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -14,6 +14,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from account.serializers import AccountSerializer
+from location.models import Picture
+from location.serializers import PictureSerializer
 
 
 @permission_classes((AllowAny,))
@@ -70,7 +72,7 @@ class TempPasswordView(View):
         return JsonResponse({'message': '임시 비밀번호가 발급되었습니다.', 'temp_password': password}, status=200)
 
 
-@api_view(['POST'])  # 하 ㅋㅋ 클래스로 만들면 auth 안타고 그냥 def로 해야 타네, 이유를 모르겠다
+@api_view(['PATCH'])  # 하 ㅋㅋ 클래스로 만들면 auth 안타고 그냥 def로 해야 타네, 이유를 모르겠다
 def changePasswordView(request):
     data = json.loads(request.body)
     user = request.user
@@ -88,7 +90,7 @@ def changePasswordView(request):
         return JsonResponse({'message': '기존 비밀번호가 틀렸습니다.'}, status=400)
 
 
-@api_view(['POST'])
+@api_view(['PATCH'])
 def changeNicknameView(request):
     data = json.loads(request.body)
     user = request.user
@@ -106,7 +108,7 @@ def changeNicknameView(request):
         return JsonResponse({'message': '닉네임 변경이 완료되었습니다.'}, status=200)
 
 
-@api_view(['POST'])
+@api_view(['PATCH'])
 def changeUserInfo(request):
     data = json.loads(request.body)
     user = request.user
@@ -116,7 +118,7 @@ def changeUserInfo(request):
 
     user.bio = data['bio']
 
-    if data['is_open'] == "true":
+    if data['is_open']:
         user.is_open = True
     else:
         user.is_open = False
@@ -129,8 +131,28 @@ def changeUserInfo(request):
 def getUserInfo(request, user_id):
     user = Account.objects.filter(id=user_id)
 
-    if user.exists():  # todo: is_open인 상태면 해당 유저 사진까지 보내도록 수정 필요
-        return JsonResponse({'message': '유저 정보 열람 완료.', 'userInfo': AccountSerializer(user[0]).data}, status=200)
+    if user.exists():  # is_open인 상태면 해당 유저 사진까지 보냄. todo: 친구 기능 추가
+        if user[0].is_open or request.user is user[0]:
+            pictures = Picture.objects.filter(author=user[0])  # todo: pagination 추가
+            return JsonResponse({'message': '유저 정보 열람 완료.', 'userInfo': AccountSerializer(user[0]).data,
+                                 'pictures': PictureSerializer(pictures, many=True).data})
+        else:
+            return JsonResponse({'message': '유저 정보 열람 완료.', 'userInfo': AccountSerializer(user[0]).data}, status=200)
 
     else:
         return JsonResponse({'message': '해당 유저가 없습니다.'}, status=400)
+
+
+@api_view(['DELETE'])
+def deleteUser(request):
+    user = request.user
+
+    if request.user.is_anonymous:
+        raise AuthenticationFailed()
+
+    Picture.objects.filter(author=user).delete()  # 저장된 해당 유저 사진 삭제
+    user.delete()
+    logout(request)
+
+    return JsonResponse({'message': '회원 탈퇴되었습니다.'}, status=200)
+

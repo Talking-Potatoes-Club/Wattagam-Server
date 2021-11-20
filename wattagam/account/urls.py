@@ -10,4 +10,5 @@ urlpatterns = [
     path('changeNickname', account.views.changeNicknameView, name='changeNicknameView'),
     path('changeUserInfo', account.views.changeUserInfo, name='changeUserInfo'),
     path('getUserInfo/<int:user_id>', account.views.getUserInfo, name='getUserInfo'),
+    path('deleteUser', account.views.deleteUser, name='deleteUser'),
 ]

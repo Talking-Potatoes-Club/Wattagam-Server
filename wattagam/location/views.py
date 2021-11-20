@@ -42,3 +42,53 @@ def newPictureView(request):
     picture.save()
 
     return JsonResponse({'message': "게시글 업로드 완료", 'post': PictureSerializer(picture).data}, status=200)
+
+
+@api_view(['GET'])
+def getPicture(request, location_id):
+    data = json.loads(request.body)
+    user = request.user
+
+    if request.user.is_anonymous:
+        raise AuthenticationFailed()
+
+    location = MapLocation.objects.filter(id=location_id)
+    if not location.exists():
+        return JsonResponse({'message': "해당 위치에 등록된 사진이 없어용"}, status=200)
+
+    posts = Picture.objects.filter(location=location[0])
+    return JsonResponse({'message': "게시글 조회 완료", 'count': str(posts.count()),
+                         'posts': PictureSerializer(posts, many=True).data}, status=200)
+
+
+@api_view(['GET'])
+def getLocationCount(request):
+    return JsonResponse()
+
+
+""""@api_view(['GET'])
+def getMyPictures(request):
+    data = json.loads(request.body)
+    user = request.user
+
+    if request.user.is_anonymous:
+        raise AuthenticationFailed()"""
+
+
+@api_view(['DELETE'])
+def deleteMyPicture(request, picture_id):
+    data = json.loads(request.body)
+    user = request.user
+
+    if request.user.is_anonymous:
+        raise AuthenticationFailed()
+
+    picture = Picture.objects.filter(id=picture_id)
+    if not picture.exists():
+        return JsonResponse({'message': '해당 사진이 존재하지 않습니다.'}, status=400)
+
+    if picture[0].author is user:  # 본인 사진일 경우만 삭제 가능
+        picture[0].delete()
+        return JsonResponse({'message': '사진 삭제 완료.'}, status=200)
+    else:
+        return JsonResponse({'message': '사진을 삭제할 권한이 없습니다.'}, status=403)
