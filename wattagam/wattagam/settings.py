@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import os, json
+import os, json, dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,26 +21,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-secret_file = os.path.join(BASE_DIR, 'secrets.json')  # secrets.json 파일 위치를 명시
+# secret_file = os.path.join(BASE_DIR, 'secrets.json')  # secrets.json 파일 위치를 명시
 
-with open(secret_file) as f:
-    secrets = json.loads(f.read())
+# with open(secret_file) as f:
+#    secrets = json.loads(f.read())
 
 
-def get_secret(setting):
-    """비밀 변수를 가져오거나 명시적 예외를 반환한다."""
+"""def get_secret(setting):
+    # 비밀 변수를 가져오거나 명시적 예외를 반환한다.
     try:
         return secrets[setting]
     except KeyError:
         error_msg = "Set the {} environment variable".format(setting)
         raise ImproperlyConfigured(error_msg)
-
+"""
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret("SECRET_KEY")  # secret key 분리
+# SECRET_KEY = get_secret("SECRET_KEY")  # secret key 분리
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')  # 배포용 환경변수로 세팅
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -68,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'wattagam.urls'
@@ -100,6 +103,9 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }  # todo: sqlite 말고 다른 db 연동 효율성 확인하기
+
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
 
 # Password validation
