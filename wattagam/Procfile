@@ -1,1 +1,1 @@
-web: gunicorn wattagam.wsgi --log-file -
+web: gunicorn --pythonpath wattagam wattagam.wsgi --log-file -
