@@ -44,7 +44,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')  # 배포용 환경변수로 �
 # DEBUG = True
 DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['wattagam-test-server.herokuapp.com', 'localhost', '127.0.0.1']
 
 CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
