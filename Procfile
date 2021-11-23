@@ -1,0 +1,1 @@
+web: gunicorn wattagam.wsgi --log-file -
