@@ -42,7 +42,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')  # 배포용 환경변수로 �
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
+DEBUG = False
+# DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
 
 ALLOWED_HOSTS = ['wattagam-test-server.herokuapp.com', 'localhost', '127.0.0.1']
 
