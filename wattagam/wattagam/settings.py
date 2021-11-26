@@ -36,13 +36,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
         raise ImproperlyConfigured(error_msg)
 """
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = get_secret("SECRET_KEY")  # secret key 분리
+# SECURITY WARNING: keep the secret key used in production secret!  # secret key 분리
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')  # 배포용 환경변수로 세팅
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True  # todo: false로 바뀌면 media 파일 경로 못찾는 에러 수정 필요
+# DEBUG = False
 # DEBUG = bool(os.environ.get('DJANGO_DEBUG'))
 
 ALLOWED_HOSTS = ['wattagam-test-server.herokuapp.com', 'localhost', '127.0.0.1']
@@ -146,6 +145,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -165,6 +165,14 @@ REST_FRAMEWORK = {
 }
 
 MEDIA_URL = "/media/"
-
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+# email 세팅
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+SERVER_EMAIL = os.environ.get('EMAIL_HOST')
+DEFAULT_FROM_MAIL = '임시 비밀번호 메일입니다.'

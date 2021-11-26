@@ -7,3 +7,4 @@ class AccountSerializer(serializers.Serializer):
     email = serializers.EmailField()
     bio = serializers.CharField()
     is_open = serializers.BooleanField()
+    profile_img = serializers.ImageField()

@@ -11,6 +11,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     user_name = models.CharField(max_length=255, null=False)
     email = models.EmailField(unique=True, max_length=255, null=False)
     bio = models.CharField(max_length=255, null=True)  # 자기 소개
+    profile_img = models.ImageField(default="/media/users/basicUser.png", upload_to="users")
     is_open = models.BooleanField(default=True)  # 계정 공개 여부 기본 공개
     #password = models.TextField(max_length=20, null=False)
 

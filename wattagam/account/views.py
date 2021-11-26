@@ -1,9 +1,14 @@
+import base64
 import json
+import uuid
 
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.hashers import check_password
+from django.core.files.base import ContentFile
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.views import View
 
 from account.models import Account
@@ -22,6 +27,8 @@ from location.serializers import PictureSerializer
 class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
+        if Account.objects.filter(user_name=data['user_name']).exists():
+            return JsonResponse({'message': '동일한 닉네임이 있습니다.'}, status=500)
 
         user = Account.objects.create_user(
             email=data['email'],
@@ -68,6 +75,11 @@ class TempPasswordView(View):
 
         user.set_password(password)
         user.save()
+
+        subject = '왔다감 서비스 임시 비밀번호 발급 메일입니다.'
+        message = '임시 비밀번호는 ' + password + '입니다.'
+        mail = EmailMessage(subject, message, to=[user.email])
+        mail.send()
 
         return JsonResponse({'message': '임시 비밀번호가 발급되었습니다.', 'temp_password': password}, status=200)
 
@@ -122,6 +134,13 @@ def changeUserInfo(request):
         user.is_open = True
     else:
         user.is_open = False
+
+    if data['profile']:
+        image_name = str(uuid.uuid4())
+        image_b64 = data['profile']  # This is your base64 string image
+        image = ContentFile(base64.b64decode(image_b64), name=image_name + ".png")
+
+        user.profile_img = image
 
     user.save()
     return JsonResponse({'message': '유저 정보 변경 완료되었습니다.', 'userInfo': AccountSerializer(user).data}, status=200)
