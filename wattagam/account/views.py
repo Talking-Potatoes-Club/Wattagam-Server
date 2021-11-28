@@ -28,7 +28,7 @@ class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
         if Account.objects.filter(user_name=data['user_name']).exists():
-            return JsonResponse({'message': '동일한 닉네임이 있습니다.'}, status=500)
+            return JsonResponse({'message': '동일한 닉네임이 있습니다.'}, status=400)
 
         user = Account.objects.create_user(
             email=data['email'],
@@ -40,7 +40,7 @@ class SignUpView(View):
         if user:
             return JsonResponse({'message': '회원가입 완료'}, status=200)
         else:
-            return JsonResponse({'message': '회원가입 실패'}, status=400)
+            return JsonResponse({'message': '회원가입 실패'}, status=401)
 
 
 @permission_classes((AllowAny,))
