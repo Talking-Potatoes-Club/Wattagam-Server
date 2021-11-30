@@ -3,6 +3,7 @@ import json
 import uuid
 
 from django.core.files.base import ContentFile
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -46,11 +47,6 @@ def newPictureView(request):
 
 @api_view(['GET'])
 def getPicture(request, location_id):
-    data = json.loads(request.body)
-    user = request.user
-
-    if request.user.is_anonymous:
-        raise AuthenticationFailed()
 
     location = MapLocation.objects.filter(id=location_id)
     if not location.exists():
@@ -63,7 +59,21 @@ def getPicture(request, location_id):
 
 @api_view(['GET'])
 def getLocationCount(request):
-    return JsonResponse()
+    cur_x = float(request.GET['x'])
+    cur_y = float(request.GET['y'])
+
+    posts = Picture.objects.filter(location__x_location__range=(cur_x - 0.01, cur_x + 0.01),
+                                   location__y_location__range=(cur_y - 0.01, cur_y + 0.01))\
+        .values('location', 'location__x_location', 'location__y_location', 'location__location_name')\
+        .annotate(location_count=Count('location'))
+
+    data = []
+    for post in posts:
+        data.append({'location_count': post['location_count'], 'location_id': post['location'],
+                     'x_location': post['location__x_location'], 'y_location': post['location__y_location'],
+                     'location_name': post['location__location_name']})
+
+    return JsonResponse({'message': "조회 완료", 'mapLocation': data}, status=200)
 
 
 """"@api_view(['GET'])
@@ -77,7 +87,6 @@ def getMyPictures(request):
 
 @api_view(['DELETE'])
 def deleteMyPicture(request, picture_id):
-    data = json.loads(request.body)
     user = request.user
 
     if request.user.is_anonymous:
