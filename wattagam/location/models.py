@@ -15,3 +15,4 @@ class Picture(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
     picture = models.ImageField(blank=True, upload_to="images")
+    contents = models.CharField(max_length=255, null=True)

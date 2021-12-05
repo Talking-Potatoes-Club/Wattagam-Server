@@ -29,7 +29,7 @@ def newPictureView(request):
     image_b64 = data['picture']  # This is your base64 string image
     image = ContentFile(base64.b64decode(image_b64), name=image_name+".png")
 
-    picture = Picture.objects.create(author=user, picture=image)
+    picture = Picture.objects.create(author=user, picture=image, contents=data['contents'])
 
     new_location = MapLocation.objects.filter(x_location=data['x_location'], y_location=data['y_location'])
     if new_location.exists():
