@@ -31,11 +31,14 @@ def newPictureView(request):
 
     picture = Picture.objects.create(author=user, picture=image, contents=data['contents'])
 
-    new_location = MapLocation.objects.filter(x_location=data['x_location'], y_location=data['y_location'])
+    cal_x = (data['x_location']*10000 - (data['x_location']*10000 % 5)) / 10000
+    cal_y = (data['y_location']*10000 - (data['y_location']*10000 % 5)) / 10000
+
+    new_location = MapLocation.objects.filter(x_location=cal_x, y_location=cal_y)
     if new_location.exists():
         picture.location = new_location[0]
     else:
-        new_location = MapLocation.objects.create(x_location=data['x_location'], y_location=data['y_location'],
+        new_location = MapLocation.objects.create(x_location=cal_x, y_location=cal_y,
                                                   location_name=data['location_name'])
         new_location.save()
         picture.location = new_location
