@@ -3,7 +3,7 @@ import json
 import uuid
 
 from django.core.files.base import ContentFile
-from django.db.models import Count
+from django.db.models import Count, Avg
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -29,7 +29,8 @@ def newPictureView(request):
     image_b64 = data['picture']  # This is your base64 string image
     image = ContentFile(base64.b64decode(image_b64), name=image_name+".png")
 
-    picture = Picture.objects.create(author=user, picture=image, contents=data['contents'])
+    picture = Picture.objects.create(author=user, picture=image, contents=data['contents'],
+                                     origin_x_location=data['x_location'], origin_y_location=data['y_location'])
 
     cal_x = (data['x_location']*1000 - (data['x_location']*1000 % 1)) / 1000
     cal_y = (data['y_location']*1000 - (data['y_location']*1000 % 1)) / 1000
@@ -68,12 +69,14 @@ def getLocationCount(request):
     posts = Picture.objects.filter(location__x_location__range=(cur_x - 0.01, cur_x + 0.01),
                                    location__y_location__range=(cur_y - 0.01, cur_y + 0.01))\
         .values('location', 'location__x_location', 'location__y_location', 'location__location_name')\
-        .annotate(location_count=Count('location'))
+        .annotate(location_count=Count('location'))\
+        .annotate(avg_x_location=Avg('origin_x_location'))\
+        .annotate(avg_y_location=Avg('origin_y_location'))
 
     data = []
     for post in posts:
         data.append({'location_count': post['location_count'], 'location_id': post['location'],
-                     'x_location': post['location__x_location'], 'y_location': post['location__y_location'],
+                     'x_location': post['avg_x_location'], 'y_location': post['avg_y_location'],
                      'location_name': post['location__location_name']})
 
     return JsonResponse({'message': "조회 완료", 'mapLocation': data}, status=200)

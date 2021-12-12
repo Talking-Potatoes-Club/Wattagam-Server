@@ -16,3 +16,5 @@ class Picture(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE)
     picture = models.ImageField(blank=True, upload_to="images")
     contents = models.CharField(max_length=255, null=True)
+    origin_x_location = models.FloatField(default=0.0)
+    origin_y_location = models.FloatField(default=0.0)
