@@ -99,7 +99,7 @@ def deleteMyPicture(request, picture_id):
     if not picture.exists():
         return JsonResponse({'message': '해당 사진이 존재하지 않습니다.'}, status=400)
 
-    if picture[0].author is user:  # 본인 사진일 경우만 삭제 가능
+    if picture[0].author.id == user.id:  # 본인 사진일 경우만 삭제 가능
         picture[0].delete()
         return JsonResponse({'message': '사진 삭제 완료.'}, status=200)
     else:
