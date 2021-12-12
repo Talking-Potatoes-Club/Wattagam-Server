@@ -31,8 +31,8 @@ def newPictureView(request):
 
     picture = Picture.objects.create(author=user, picture=image, contents=data['contents'])
 
-    cal_x = (data['x_location']*10000 - (data['x_location']*10000 % 5)) / 10000
-    cal_y = (data['y_location']*10000 - (data['y_location']*10000 % 5)) / 10000
+    cal_x = (data['x_location']*1000 - (data['x_location']*1000 % 1)) / 1000
+    cal_y = (data['y_location']*1000 - (data['y_location']*1000 % 1)) / 1000
 
     new_location = MapLocation.objects.filter(x_location=cal_x, y_location=cal_y)
     if new_location.exists():
